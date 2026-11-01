@@ -9,7 +9,7 @@ const SECRET = 'test_secret_value';
 process.env.RAZORPAY_KEY_ID = 'rzp_test_key';
 process.env.RAZORPAY_KEY_SECRET = SECRET;
 
-const student = { name: 'Asha Rao', phone: '9876543210', location: 'Pune, MH' };
+const student = { name: 'Asha Rao', phone: '9812345678', location: 'Pune, MH' };
 const SHEET_URL = 'https://sheet.test/exec';
 const WEBHOOK_SECRET = 'webhook_secret_value';
 let orders;
@@ -103,7 +103,7 @@ test('missing and invalid details are rejected before any order exists', async (
 });
 
 test('the amount is fixed by the server and the student travels with the order', async () => {
-  const { status, body } = await order({ ...student, phone: '+91 98765-43210', amount: 1 });
+  const { status, body } = await order({ ...student, phone: '+91 98123-45678', amount: 1 });
   assert.equal(status, 201);
   assert.equal(body.data.amount, 99900);
   assert.equal(JSON.stringify(body).includes(SECRET), false);
@@ -121,12 +121,13 @@ test('successful flow produces an invoice with the real payment and student', as
   assert.equal(res.headers.get('content-type'), 'application/pdf');
   const pdf = Buffer.from(await res.arrayBuffer()).toString('latin1');
   assert.ok(pdf.startsWith('%PDF-1.4') && pdf.trimEnd().endsWith('%%EOF'));
-  for (const expected of ['Asha Rao', '+91 98765 43210', '999.00', 'Production Deployment Accelerator', payment.id, body.data.orderId, verified.body.data.invoiceNo, verified.body.data.paymentDate]) {
+  for (const expected of ['Asha Rao', '+91 98123 45678', '999.00', 'Production Deployment Accelerator', '+91 97690 73820', verified.body.data.invoiceNo]) {
     assert.ok(pdf.includes(expected), `PDF is missing ${expected}`);
   }
+  for (const removed of [payment.id, body.data.orderId, 'Not provided', 'Email']) assert.equal(pdf.includes(removed), false, `PDF still shows ${removed}`);
   assert.match(res.headers.get('content-disposition'), /Invoice-AA-INV-\d{4}-[A-Z0-9]{6}.pdf/);
   assert.equal(verified.body.data.groupUrl.startsWith('https://chat.whatsapp.com/'), true);
-  assert.deepEqual(sheet.get(payment.id), ['Asha Rao', '9876543210', 'Pune, MH', '999.00', payment.id, verified.body.data.paymentDate, 'PAID', verified.body.data.invoiceNo]);
+  assert.deepEqual(sheet.get(payment.id), ['Asha Rao', '9812345678', 'Pune, MH', '999.00', payment.id, verified.body.data.paymentDate, 'PAID', verified.body.data.invoiceNo]);
 });
 
 test('authorized payments are captured by the backend before they count', async () => {
