@@ -64,6 +64,12 @@ The design comes from the supplied PNG, stored in lib/invoice-template.mjs. Name
 Set GSTIN in lib/payments.mjs once you have a real registration: invoices then show it, with 18% GST included in the price. While it is empty, invoices show no GSTIN and no tax.
 Students can download an invoice again with Find my invoice: from the same browser, or anywhere using their phone number and Razorpay payment ID.
 
+SEO AFTER GOING LIVE (these need the final domain):
+1. In public/index.html add <link rel="canonical"> and absolute og:url and og:image tags, and change twitter:card to summary_large_image.
+2. Add public/sitemap.xml and a Sitemap line in public/robots.txt.
+3. Add the site in Google Search Console and submit the sitemap.
+Files in public/images and public/fonts are cached for a year, so give a replaced file a new name.
+
 WHATSAPP:
 The WhatsApp buttons connect to +91 97690 73820.
 The group invitation is kept in WHATSAPP_GROUP_URL (.env and your host), never in the code, and is only sent to the browser after a verified payment. If it is missing, customers are sent to the WhatsApp number above.
